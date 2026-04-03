@@ -1,8 +1,6 @@
 import { cookies } from "next/headers";
-import Sidebar from "@/components/Sidebar";
-import { AuthProvider } from "@/context/auth-context";
 import { decodeJwt } from "@/lib/jwt";
-import { LogoutButton } from "@/components/LogoutButton";
+import AppShell from "@/components/AppShell";
 import type React from "react";
 
 async function getInitialPermissions(token: string | undefined, roleIds: string[]) {
@@ -53,26 +51,13 @@ export default async function AppLayout({
   const permissions = await getInitialPermissions(token || undefined, roleIds);
 
   return (
-    <AuthProvider
+    <AppShell
       token={token}
-      initialPermissions={permissions}
-      initialRoleIds={roleIds}
-      initialUser={{ uid: decoded?.uid, email: decoded?.email }}
+      permissions={permissions}
+      roleIds={roleIds}
+      user={{ uid: decoded?.uid, email: decoded?.email }}
     >
-      <div className="min-h-screen flex">
-        <Sidebar />
-        <div className="flex-1 min-h-screen bg-white/80">
-          <header className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/70 backdrop-blur">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-emerald-600">
-                Doc Portal
-              </p>
-            </div>
-            <LogoutButton />
-          </header>
-          <main className="min-h-[calc(100vh-4rem)]">{children}</main>
-        </div>
-      </div>
-    </AuthProvider>
+      {children}
+    </AppShell>
   );
 }

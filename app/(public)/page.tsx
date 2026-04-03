@@ -54,19 +54,22 @@ export default function LoginPage() {
       });
 
       localStorage.setItem("token", response.access_token);
+      if (typeof document !== "undefined") {
+        document.cookie = `token=${response.access_token}; Path=/; Max-Age=${response.expires_in}; SameSite=Lax`;
+      }
 
-      // const decoded = decodeJwt(response.access_token);
-      // if (decoded) {
-      //   localStorage.setItem(
-      //     "user",
-      //     JSON.stringify({
-      //       uid: decoded.uid,
-      //       email: decoded.email,
-      //       roles: decoded.roles ?? response.roles,
-      //       exp: decoded.exp,
-      //     }),
-      //   );
-      // }
+      const decoded = decodeJwt(response.access_token);
+      if (decoded) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            uid: decoded.uid,
+            email: decoded.email,
+            role_ids: decoded.role_ids,
+            exp: decoded.exp,
+          }),
+        );
+      }
 
       router.push("/dashboard");
     } catch (error) {
@@ -81,7 +84,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-black from-slate-900 via-slate-900 to-slate-700 flex items-center justify-center px-6 py-12">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-700 flex items-center justify-center px-6 py-12">
       <div className="bg-white/95 text-slate-900 shadow-2xl rounded-2xl w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1.05fr,0.95fr] overflow-hidden">
         <section className="p-10 lg:p-12 flex flex-col justify-center gap-8">
           <header className="space-y-2">

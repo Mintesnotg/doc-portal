@@ -2,6 +2,7 @@ export type DecodedToken = {
   uid?: string;
   email?: string;
   roles?: string[];
+  role_ids?: string[];
   exp?: number;
   iat?: number;
 };

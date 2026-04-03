@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X ,User} from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { AuthProvider } from "@/context/auth-context";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -21,6 +21,8 @@ export function AppShell({
   user,
   children,
 }: AppShellProps) {
+
+
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -46,7 +48,7 @@ export function AppShell({
             <div className="flex items-center gap-3">
               {user?.email ? (
                 <span className="text-sm text-slate-600 hidden sm:inline">
-                  {user.email}
+                 <User/> {user.email} 
                 </span>
               ) : null}
               <LogoutButton />

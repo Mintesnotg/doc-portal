@@ -12,8 +12,6 @@ import {
   ClockIcon,
   ShieldCheck,
 } from "lucide-react";
-import type React from "react";
-
 export type SidebarItem = {
   name: string;
   route?: string;

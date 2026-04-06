@@ -7,11 +7,13 @@ export function LogoutButton() {
   const router = useRouter();
   const { setPermissions } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
     localStorage.removeItem("user");
-    document.cookie = "token=; Path=/; Max-Age=0; SameSite=Lax";
-    document.cookie = "access_token=; Path=/; Max-Age=0; SameSite=Lax";
+    try {
+      await fetch("/api/session", { method: "DELETE" });
+    } catch {
+      // ignore network errors on logout
+    }
     setPermissions([]);
     router.replace("/");
   };

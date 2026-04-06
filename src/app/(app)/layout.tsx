@@ -42,6 +42,7 @@ export default async function AppLayout({
 }) {
   const cookieStore = await cookies();
   const token =
+    cookieStore.get("__Host-token")?.value ||
     cookieStore.get("token")?.value ||
     cookieStore.get("access_token")?.value ||
     "";

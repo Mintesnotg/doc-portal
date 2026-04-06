@@ -8,6 +8,7 @@ export type DecodedToken = {
 };
 
 export function decodeJwt(token: string): DecodedToken | null {
+  debugger;
   try {
     const parts = token.split(".");
     if (parts.length < 2) return null;

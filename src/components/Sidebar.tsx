@@ -14,9 +14,17 @@ const itemKey = (trail: string[]) => trail.join(" > ");
 
 type SidebarProps = {
   collapsed?: boolean;
+  mobileVisible?: boolean;
+  className?: string;
+  onNavigate?: () => void;
 };
 
-export function Sidebar({ collapsed = false }: SidebarProps) {
+export function Sidebar({
+  collapsed = false,
+  mobileVisible = false,
+  className = "",
+  onNavigate,
+}: SidebarProps) {
   const pathname = usePathname();
   const { permissions } = useAuth();
 
@@ -80,6 +88,7 @@ export function Sidebar({ collapsed = false }: SidebarProps) {
               : "text-slate-200/90 hover:bg-white/5"
           } ${collapsed ? "justify-center" : ""}`}
           title={collapsed ? item.name : undefined}
+          onClick={onNavigate}
         >
           {Icon ? <Icon className="h-4 w-4" /> : null}
           <span className={collapsed ? "sr-only" : ""}>{item.name}</span>
@@ -91,12 +100,13 @@ export function Sidebar({ collapsed = false }: SidebarProps) {
     return null;
   }
 
+  const baseClasses =
+    "min-h-screen flex-col bg-slate-900 text-slate-100 border-r border-white/10 shadow-xl transition-all duration-200";
+  const desktopClasses = `${collapsed ? "hidden md:flex w-16" : "hidden md:flex w-72"}`;
+  const mobileClasses = mobileVisible ? "flex md:hidden fixed inset-y-0 left-0 w-72 z-50" : "";
+
   return (
-    <aside
-      className={`hidden md:flex ${
-        collapsed ? "w-16" : "w-72"
-      } min-h-screen flex-col bg-slate-900 text-slate-100 border-r border-white/10 shadow-xl transition-all duration-200`}
-    >
+    <aside className={`${baseClasses} ${mobileClasses || desktopClasses} ${className}`}>
       <div className={`px-4 py-5 border-b border-white/10 ${collapsed ? "items-center" : ""}`}>
         <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Doc Portal</p>
         <p className={`text-lg font-semibold text-white ${collapsed ? "sr-only" : ""}`}>

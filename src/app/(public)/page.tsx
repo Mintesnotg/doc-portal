@@ -53,9 +53,17 @@ export default function LoginPage() {
         password,
       });
 
-      localStorage.setItem("token", response.access_token);
-      if (typeof document !== "undefined") {
-        document.cookie = `token=${response.access_token}; Path=/; Max-Age=${response.expires_in}; SameSite=Lax`;
+      const sessionRes = await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: response.access_token,
+          maxAge: response.expires_in,
+        }),
+      });
+
+      if (!sessionRes.ok) {
+        throw new Error("Could not establish a secure session");
       }
 
       const decoded = decodeJwt(response.access_token);
@@ -85,7 +93,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-700 flex items-center justify-center px-6 py-12">
-      <div className="bg-white/95 text-slate-900 shadow-2xl rounded-2xl w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1.05fr,0.95fr] overflow-hidden">
+      <div className="bg-white/95 text-slate-900 shadow-2xl rounded-2xl  max-w-4xl grid grid-cols-1 md:grid-cols-[1.05fr,0.95fr] overflow-hidden">
         <section className="p-10 lg:p-12 flex flex-col justify-center gap-8">
           <header className="space-y-2">
             <p className="text-sm font-semibold text-emerald-600 uppercase tracking-[0.2em]">
@@ -179,44 +187,11 @@ export default function LoginPage() {
               )}
             </button>
 
-            <p className="text-xs text-slate-500">
-              By signing in you agree to follow your organization&apos;s security policy.
-            </p>
+       
           </form>
         </section>
 
-        <section className="relative hidden md:flex bg-slate-950 text-white items-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-slate-900 to-slate-950" />
-          <div className="relative p-10 lg:p-12 flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-lg font-semibold">
-                DP
-              </div>
-              <div>
-                <p className="text-sm uppercase tracking-[0.25em] text-emerald-100">
-                  Secure Workspace
-                </p>
-                <p className="text-lg font-semibold">Document Portal</p>
-              </div>
-            </div>
-            <p className="text-sm text-emerald-50/90 leading-relaxed">
-              Manage documentation, control access, and collaborate with confidence. Your session
-              will remain encrypted while active.
-            </p>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              {["SSO-ready", "Role-based access", "Audit friendly", "Fast uploads"].map(
-                (item) => (
-                  <div
-                    key={item}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-emerald-50"
-                  >
-                    {item}
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
-        </section>
+
       </div>
     </main>
   );

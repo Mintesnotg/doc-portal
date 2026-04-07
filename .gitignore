@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# Go build cache (never commit; bloats repo and CI)
+.gocache/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

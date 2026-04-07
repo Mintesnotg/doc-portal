@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { clearSessionCookie } from "@/lib/session-cookie";
 
 export function LogoutButton() {
   const router = useRouter();
   const { setPermissions } = useAuth();
-
+    clearSessionCookie
   const handleLogout = async () => {
-    localStorage.removeItem("user");
+    // localStorage.removeItem("user");
     try {
       await fetch("/api/session", { method: "DELETE" });
     } catch {

@@ -2,8 +2,6 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ApiError, loginRequest } from "@/lib/api";
-import { decodeJwt } from "@/lib/jwt";
 
 type FieldErrors = {
   email?: string;
@@ -48,44 +46,36 @@ export default function LoginPage() {
     setErrors({});
 
     try {
-      const response = await loginRequest({
-        email: email.trim(),
-        password,
-      });
-
-      const sessionRes = await fetch("/api/session", {
+      const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
-          token: response.access_token,
-          maxAge: response.expires_in,
+          email: email.trim(),
+          password,
         }),
       });
 
-      if (!sessionRes.ok) {
-        throw new Error("Could not establish a secure session");
+      if (loginRes.ok) {
+        router.push("/dashboard");
+        return;
       }
 
-      const decoded = decodeJwt(response.access_token);
-      if (decoded) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            uid: decoded.uid,
-            email: decoded.email,
-            role_ids: decoded.role_ids,
-            exp: decoded.exp,
-          }),
-        );
-      }
+      const data = (await loginRes.json().catch(() => ({}))) as {
+        error?: string;
+      };
 
-      router.push("/dashboard");
-    } catch (error) {
-      if (error instanceof ApiError && error.code === "INVALID_CREDENTIALS") {
+      if (loginRes.status === 401) {
         setErrors({ general: "Incorrect email or password." });
       } else {
-        setErrors({ general: "Something went wrong. Please try again." });
+        setErrors({
+          general:
+            data.error?.trim() ||
+            "Something went wrong. Please try again.",
+        });
       }
+    } catch {
+      setErrors({ general: "Something went wrong. Please try again." });
     } finally {
       setIsSubmitting(false);
     }

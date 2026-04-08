@@ -10,6 +10,7 @@ import {
   UserCog,
   ListChecks,
   ClockIcon,
+  FolderClosedIcon,
   ShieldCheck,
 } from "lucide-react";
 export type SidebarItem = {
@@ -51,6 +52,13 @@ export const sidebarConfig: SidebarItem[] = [
     icon: FolderTree,
     permission: "view_doc_management",
     children: [
+      
+      {
+        name: "Doc Categories",
+        icon: FolderClosedIcon,
+        route: "/docs",
+        permission: "view_docs_categories",
+      },
       {
         name: "HR Documents",
         icon: FolderOpen,

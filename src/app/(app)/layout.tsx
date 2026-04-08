@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+﻿import { cookies } from "next/headers";
 import { decodeJwt } from "@/lib/jwt";
 import AppShell from "@/components/AppShell";
 import type React from "react";
@@ -9,7 +9,7 @@ async function getInitialPermissions(token: string | undefined, roleIds: string[
   const permissionApi =
     process.env.PERMISSION_API_URL ??
     (process.env.NEXT_PUBLIC_API_BASE_URL
-      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/permissions`
+      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/permissions/resolve`
       : undefined);
 
   if (!permissionApi) return [];
@@ -20,6 +20,7 @@ async function getInitialPermissions(token: string | undefined, roleIds: string[
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "X-Permission": "view_permissions",
       },
       cache: "no-store",
       credentials: "include",

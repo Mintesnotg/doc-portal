@@ -53,7 +53,7 @@ export function middleware(request: NextRequest) {
   const isExpired = decoded?.exp !== undefined && decoded.exp < nowInSeconds;
 
   if (!decoded || isExpired) {
-    console.log(isExpired)
+
     const url = new URL("/", request.url);
     return NextResponse.redirect(url);
   }

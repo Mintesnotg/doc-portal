@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Menu, X, User } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import { AuthProvider } from "@/context/auth-context";
 import { LogoutButton } from "@/components/LogoutButton";
+import { Toaster } from "sonner";
 
 type AppShellProps = {
   token?: string;
@@ -21,7 +22,6 @@ export function AppShell({
   user,
   children,
 }: AppShellProps) {
-
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -50,8 +50,8 @@ export function AppShell({
       ? <X className="h-5 w-5" />
       : <Menu className="h-5 w-5" />
     : collapsed
-      ? <Menu className="h-5 w-5" />
-      : <X className="h-5 w-5" />;
+      ? <X className="h-5 w-5" />
+      : <Menu className="h-5 w-5" />;
 
   const ariaLabel = isMobile
     ? mobileOpen
@@ -108,6 +108,7 @@ export function AppShell({
           </header>
 
           <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+          <Toaster position="top-right" richColors />
         </div>
       </div>
     </AuthProvider>

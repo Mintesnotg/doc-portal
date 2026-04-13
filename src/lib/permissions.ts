@@ -20,7 +20,6 @@ const withPermissionHeader = (permission: string) => ({
 });
 
 export async function fetchPermissions(): Promise<PermissionListResponse> {
-  debugger;
   const res = await fetch(buildApiUrl("/api/permissions"), {
    
     method: "GET",
@@ -37,7 +36,7 @@ export async function createPermission(name: string): Promise<Permission> {
   const res = await fetch(buildApiUrl("/api/permissions"), {
     method: "POST",
     credentials: "include",
-    headers: withPermissionHeader("create_permission"),
+    headers: withPermissionHeader("create_permissions"),
     body: JSON.stringify({ name }),
   });
   if (res.status === 409) throw new Error("Permission name already exists");
@@ -49,7 +48,7 @@ export async function updatePermission(id: string, name: string): Promise<Permis
   const res = await fetch(buildApiUrl(`/api/permissions/${id}`), {
     method: "PUT",
     credentials: "include",
-    headers: withPermissionHeader("update_permission"),
+    headers: withPermissionHeader("update_permissions"),
     body: JSON.stringify({ name }),
   });
   if (res.status === 409) throw new Error("Permission name already exists");
@@ -62,7 +61,7 @@ export async function deletePermission(id: string): Promise<void> {
   const res = await fetch(buildApiUrl(`/api/permissions/${id}`), {
     method: "DELETE",
     credentials: "include",
-    headers: withPermissionHeader("delete_permission"),
+    headers: withPermissionHeader("delete_permissions"),
   });
   if (res.status === 404) throw new Error("Permission not found");
   if (!res.ok) throw new Error("Failed to delete permission");

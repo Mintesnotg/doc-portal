@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Trash2, Plus, Shield } from "lucide-react";
+import { Edit, Trash2, Plus, Shield, X } from "lucide-react";
 import { DataTable } from "@/components/data-table";
 import {
   createPermission,
@@ -27,12 +27,10 @@ export default function PermissionsPage() {
     try {
       setLoading(true);
       const res = await fetchPermissions();
-      debugger;
       setData(res.data);
       setError(null);
     } catch (err) {
       setError((err as Error).message);
-      console.log(err)
     } finally {
       setLoading(false);
     }
@@ -206,8 +204,16 @@ function PermissionModal({ title, confirmLabel, initialName = "", onClose, onSub
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
-        <div className="flex items-center gap-2">
+      <div className="relative w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close modal"
+          className="absolute right-4 top-4 rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <div className="flex items-center gap-2 pr-8">
           <div className="rounded-md bg-emerald-50 text-emerald-700 p-2">
             <Shield className="h-4 w-4" />
           </div>
@@ -263,8 +269,16 @@ function ConfirmModal({ title, description, confirmLabel, tone = "danger", onClo
   const danger = tone === "danger";
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+      <div className="relative w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close modal"
+          className="absolute right-4 top-4 rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <h2 className="pr-8 text-lg font-semibold text-slate-900">{title}</h2>
         <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
 
         <div className="flex justify-end gap-2 pt-2">

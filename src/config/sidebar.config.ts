@@ -56,7 +56,7 @@ export const sidebarConfig: SidebarItem[] = [
       {
         name: "Doc Categories",
         icon: FolderClosedIcon,
-        route: "/docs",
+        route: "/docs/categories",
         permission: "view_docs_categories",
       },
       {

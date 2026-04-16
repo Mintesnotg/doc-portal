@@ -1,11 +1,12 @@
-export default function HrTimeManagementPage() {
+import DocumentManager from "@/components/documents/DocumentManager";
+
+export default function HrTimeManagementDocsPage() {
   return (
-    <section className="p-8 space-y-3">
-      <h1 className="text-2xl font-semibold text-slate-900">HR · Time Management Docs</h1>
-      <p className="text-slate-600 text-sm">
-        Placeholder for time management documents. Integrate with your content store to surface
-        files.
-      </p>
-    </section>
+    <DocumentManager
+      category="HR"
+      title="Time Management Documents"
+      subtitle="Manage HR time-management documents with category handled automatically."
+    />
   );
 }
+

@@ -1,10 +1,12 @@
-export default function HrRequirementsPage() {
+import DocumentManager from "@/components/documents/DocumentManager";
+
+export default function HrRequirementDocsPage() {
   return (
-    <section className="p-8 space-y-3">
-      <h1 className="text-2xl font-semibold text-slate-900">HR · Requirement Docs</h1>
-      <p className="text-slate-600 text-sm">
-        Placeholder for requirement documents. Replace with your document list or viewer component.
-      </p>
-    </section>
+    <DocumentManager
+      category="HR"
+      title="Requirement Documents"
+      subtitle="Create, edit, download, and manage HR requirement files from one place."
+    />
   );
 }
+

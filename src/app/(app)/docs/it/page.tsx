@@ -1,6 +1,6 @@
 import DocumentManager from "@/components/documents/DocumentManager";
 
-export default function ItApplicationDocsPage() {
+export default function ItDocsPage() {
   return (
     <DocumentManager
       category="IT"

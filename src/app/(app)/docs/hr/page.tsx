@@ -1,6 +1,6 @@
 import DocumentManager from "@/components/documents/DocumentManager";
 
-export default function HrBenefitsDocsPage() {
+export default function HrDocsPage() {
   return (
     <DocumentManager
       category="HR"

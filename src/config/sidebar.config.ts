@@ -65,22 +65,10 @@ export const sidebarConfig: SidebarItem[] = [
         permission: "view_hr_docs",
         children: [
           {
-            name: "Requirement Docs",
-            route: "/docs/hr/requirements",
+            name: "All HR Documents",
+            route: "/docs/hr/",
             icon: FileText,
             permission: "view_requirement_doc",
-          },
-          {
-            name: "Employee Benefit Docs",
-            route: "/docs/hr/benefits",
-            icon: ListChecks,
-            permission: "view_benefit_docs",
-          },
-          {
-            name: "Time Management Docs",
-            route: "/docs/hr/time",
-            icon: ClockIcon,
-            permission: "view_time_docs",
           },
         ],
       },
@@ -90,22 +78,10 @@ export const sidebarConfig: SidebarItem[] = [
         permission: "view_it_docs",
         children: [
           {
-            name: "User Access Docs",
-            route: "/docs/it/access",
+            name: "All IT Documents",
+            route: "/docs/it",
             icon: KeyRound,
             permission: "view_access_docs",
-          },
-          {
-            name: "List of Application Docs",
-            route: "/docs/it/apps",
-            icon: ListChecks,
-            permission: "view_apps_docs",
-          },
-          {
-            name: "Security Docs",
-            route: "/docs/it/security",
-            icon: ShieldCheck,
-            permission: "view_security_docs",
           },
         ],
       },

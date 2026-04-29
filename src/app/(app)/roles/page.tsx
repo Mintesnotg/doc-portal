@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Trash2, Plus } from "lucide-react";
+import { Edit, Plus, Search, Trash2, X } from "lucide-react";
 import { DataTable } from "@/components/data-table";
 import { fetchPermissions, type Permission } from "@/lib/permissions";
 import {
@@ -171,7 +171,7 @@ export default function RolesPage() {
       {confirmDelete ? (
         <ConfirmModal
           title="Delete role"
-          description={`Delete “${confirmDelete.name}”? This will deactivate it and remove access for assigned users.`}
+          description={`Delete "${confirmDelete.name}"? This will deactivate it and remove access for assigned users.`}
           confirmLabel="Delete"
           tone="danger"
           onClose={() => setConfirmDelete(null)}
@@ -195,7 +195,11 @@ type RoleModalProps = {
 function RoleModal({ title, confirmLabel, permissions, initialName = "", initialSelected = [], onClose, onSubmit }: RoleModalProps) {
   const [name, setName] = useState(initialName);
   const [selected, setSelected] = useState<Set<string>>(new Set(initialSelected));
+  const [permissionQuery, setPermissionQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const filteredPermissions = permissions.filter((perm) =>
+    perm.name.toLowerCase().includes(permissionQuery.trim().toLowerCase()),
+  );
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -216,8 +220,16 @@ function RoleModal({ title, confirmLabel, permissions, initialName = "", initial
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-xl rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
-        <div className="flex items-center gap-2">
+      <div className="relative w-full max-w-xl rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close modal"
+          className="absolute right-4 top-4 rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <div className="flex items-center gap-2 pr-8">
           <div className="rounded-md bg-emerald-50 text-emerald-700 p-2">
             <Plus className="h-4 w-4" />
           </div>
@@ -241,11 +253,26 @@ function RoleModal({ title, confirmLabel, permissions, initialName = "", initial
         </label>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
+        <div className="mt-5 space-y-2">
+          <p className="text-sm font-medium text-slate-700">Permissions</p>
+          <label className="relative block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={permissionQuery}
+              onChange={(e) => setPermissionQuery(e.target.value)}
+              placeholder="Search permissions"
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-3 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </label>
+        </div>
+
         <div className="max-h-60 overflow-auto rounded-lg border border-slate-200 p-3 space-y-2 bg-slate-50">
           {permissions.length === 0 ? (
             <p className="text-sm text-slate-500">No permissions available.</p>
+          ) : filteredPermissions.length === 0 ? (
+            <p className="text-sm text-slate-500">No matching permissions.</p>
           ) : (
-            permissions.map((perm) => (
+            filteredPermissions.map((perm) => (
               <label key={perm.id} className="flex items-center gap-2 text-sm text-slate-700">
                 <input
                   type="checkbox"
@@ -291,8 +318,16 @@ function ConfirmModal({ title, description, confirmLabel, tone = "danger", onClo
   const danger = tone === "danger";
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+      <div className="relative w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200 p-6 space-y-4">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close modal"
+          className="absolute right-4 top-4 rounded-md p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <h2 className="pr-8 text-lg font-semibold text-slate-900">{title}</h2>
         <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
 
         <div className="flex justify-end gap-2 pt-2">

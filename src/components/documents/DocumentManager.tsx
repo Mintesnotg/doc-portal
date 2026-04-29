@@ -144,6 +144,11 @@ export default function DocumentManager({ category, title, subtitle }: DocumentM
         accessorKey: "file_name",
       },
       {
+        header: "Processing Status",
+        accessorKey: "processing_status",
+        cell: ({ row }) => <ProcessingStatusBadge value={row.original.processing_status} />,
+      },
+      {
         header: "Created Date",
         accessorKey: "created_at",
         cell: ({ row }) => formatDate(row.original.created_at),
@@ -448,4 +453,24 @@ function formatDate(value: string) {
     month: "short",
     day: "2-digit",
   });
+}
+
+function ProcessingStatusBadge({ value }: { value: string }) {
+  const normalized = value.trim().toLowerCase();
+
+  const stylesByStatus: Record<string, string> = {
+    pending: "border-amber-200 bg-amber-50 text-amber-700",
+    running: "border-sky-200 bg-sky-50 text-sky-700",
+    completed: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    failed: "border-red-200 bg-red-50 text-red-700",
+  };
+
+  const label = normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : "Unknown";
+  const style = stylesByStatus[normalized] ?? "border-slate-200 bg-slate-50 text-slate-700";
+
+  return (
+    <span className={`inline-flex min-w-[6.5rem] justify-center rounded-full border px-2.5 py-1 text-xs font-medium ${style}`}>
+      {label}
+    </span>
+  );
 }

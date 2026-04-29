@@ -270,6 +270,10 @@ export default function PublicLandingPage() {
   const router = useRouter();
   const chatSectionRef = useRef<HTMLElement | null>(null);
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
+  const requestControllerRef = useRef<AbortController | null>(null);
+  const generationRunIdRef = useRef<string | null>(null);
+  const activeGenerationRef = useRef<{ sessionId: string; assistantId: string } | null>(null);
+  const stopStreamRef = useRef(false);
 
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string>("");
@@ -347,7 +351,34 @@ export default function PublicLandingPage() {
     );
   };
 
+  const stopGeneration = (stoppedMessage: string) => {
+    stopStreamRef.current = true;
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    setIsSending(false);
+
+    const activeGeneration = activeGenerationRef.current;
+    if (!activeGeneration) return;
+
+    updateSessionMessages(activeGeneration.sessionId, (messages) =>
+      messages.map((message) =>
+        message.id === activeGeneration.assistantId
+          ? {
+              ...message,
+              status: "done",
+              timestamp: nowIso(),
+              content: message.content.trim() || stoppedMessage,
+            }
+          : message,
+      ),
+    );
+
+    generationRunIdRef.current = null;
+    activeGenerationRef.current = null;
+  };
+
   const streamAssistantContent = async (
+    runId: string,
     sessionId: string,
     assistantId: string,
     fullText: string,
@@ -371,6 +402,10 @@ export default function PublicLandingPage() {
     let rolling = "";
 
     for (const token of words) {
+      if (stopStreamRef.current || generationRunIdRef.current !== runId) {
+        return;
+      }
+
       rolling += token;
       updateSessionMessages(sessionId, (messages) =>
         messages.map((message) =>
@@ -393,7 +428,9 @@ export default function PublicLandingPage() {
       return;
     }
 
-    if (isSending) return;
+    if (isSending) {
+      stopGeneration("Generation interrupted. Ask your next question.");
+    }
 
     let targetSessionId = activeSessionId;
     if (!targetSessionId) {
@@ -432,11 +469,18 @@ export default function PublicLandingPage() {
     setPrompt("");
     setValidationError("");
     setIsSending(true);
+    stopStreamRef.current = false;
+    const runId = crypto.randomUUID();
+    generationRunIdRef.current = runId;
+    activeGenerationRef.current = { sessionId: targetSessionId, assistantId: assistantMessage.id };
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
 
     try {
       const response = await fetch("/api/rag/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           question: trimmed,
           category: selectedCategory,
@@ -453,7 +497,11 @@ export default function PublicLandingPage() {
       }
 
       const answer = typeof payload.answer === "string" ? payload.answer : "";
-      await streamAssistantContent(targetSessionId, assistantMessage.id, answer);
+      await streamAssistantContent(runId, targetSessionId, assistantMessage.id, answer);
+
+      if (generationRunIdRef.current !== runId || stopStreamRef.current) {
+        return;
+      }
 
       updateSessionMessages(targetSessionId, (messages) =>
         messages.map((message) =>
@@ -472,6 +520,14 @@ export default function PublicLandingPage() {
         ),
       );
     } catch (error) {
+      if (generationRunIdRef.current !== runId) {
+        return;
+      }
+
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+
       const message = error instanceof Error ? error.message : "Failed to generate answer.";
       updateSessionMessages(targetSessionId, (messages) =>
         messages.map((item) =>
@@ -488,7 +544,13 @@ export default function PublicLandingPage() {
         ),
       );
     } finally {
-      setIsSending(false);
+      if (generationRunIdRef.current === runId) {
+        generationRunIdRef.current = null;
+        activeGenerationRef.current = null;
+        requestControllerRef.current = null;
+        stopStreamRef.current = false;
+        setIsSending(false);
+      }
     }
   };
 
@@ -864,12 +926,21 @@ export default function PublicLandingPage() {
                   />
                   <button
                     type="submit"
-                    disabled={isSending}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
-                    {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    Send
+                    {isSending ? <RefreshCcw className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                    {isSending ? "Stop & Send" : "Send"}
                   </button>
+                  {isSending ? (
+                    <button
+                      type="button"
+                      onClick={() => stopGeneration("Generation stopped.")}
+                      className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-50 px-5 text-sm font-semibold text-red-700 transition hover:bg-red-100"
+                    >
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Stop
+                    </button>
+                  ) : null}
                 </div>
               </form>
             </div>

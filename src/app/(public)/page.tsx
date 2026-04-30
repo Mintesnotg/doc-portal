@@ -2,22 +2,23 @@
 
 import { FormEvent, Fragment, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ArrowRight,
   Bot,
   Building2,
+  Check,
   CheckCircle2,
   CircleHelp,
   Clock3,
+  Copy,
   FileText,
   FolderOpen,
   Landmark,
   Loader2,
-  Lock,
   MessageSquare,
   RefreshCcw,
   Send,
   ShieldCheck,
   Sparkles,
+  Trash2,
   User,
   Users,
   Wrench,
@@ -189,14 +190,28 @@ const highlightSnippet = (text: string, prompt: string) => {
   });
 };
 
-const renderInlineLinks = (text: string) => {
+const renderBoldText = (text: string, keyPrefix: string) => {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return (
+        <strong key={`${keyPrefix}-bold-${index}`} className="font-semibold text-slate-900">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <Fragment key={`${keyPrefix}-plain-${index}`}>{part}</Fragment>;
+  });
+};
+
+const renderInlineFormattedText = (text: string, keyPrefix: string) => {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const chunks = text.split(urlRegex);
   return chunks.map((chunk, index) => {
     if (chunk.match(urlRegex)) {
       return (
         <a
-          key={`${chunk}-${index}`}
+          key={`${keyPrefix}-url-${index}`}
           href={chunk}
           target="_blank"
           rel="noreferrer"
@@ -206,7 +221,12 @@ const renderInlineLinks = (text: string) => {
         </a>
       );
     }
-    return <Fragment key={`${chunk}-${index}`}>{chunk}</Fragment>;
+
+    return (
+      <Fragment key={`${keyPrefix}-txt-${index}`}>
+        {renderBoldText(chunk, `${keyPrefix}-${index}`)}
+      </Fragment>
+    );
   });
 };
 
@@ -250,18 +270,87 @@ const MarkdownMessage = ({ content }: { content: string }) => {
 };
 
 const TextBlock = ({ text }: { text: string }) => {
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
+  const lines = text.split("\n");
+  const nodes: ReactNode[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const currentLine = lines[i].trim();
+
+    if (!currentLine) {
+      i += 1;
+      continue;
+    }
+
+    const heading = currentLine.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      const level = heading[1].length;
+      const headingText = heading[2].trim();
+      const className =
+        level === 1
+          ? "text-xl font-semibold text-slate-900"
+          : level === 2
+            ? "text-lg font-semibold text-slate-900"
+            : "text-base font-semibold text-slate-800";
+
+      nodes.push(
+        <h3 key={`heading-${i}`} className={className}>
+          {renderInlineFormattedText(headingText, `heading-${i}`)}
+        </h3>,
+      );
+      i += 1;
+      continue;
+    }
+
+    if (currentLine.startsWith("* ")) {
+      const bullets: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith("* ")) {
+        bullets.push(lines[i].trim().slice(2).trim());
+        i += 1;
+      }
+
+      nodes.push(
+        <ul key={`bullets-${i}`} className="list-disc space-y-1 pl-6 text-slate-700">
+          {bullets.map((bullet, index) => (
+            <li key={`bullet-${i}-${index}`}>
+              {renderInlineFormattedText(bullet, `bullet-${i}-${index}`)}
+            </li>
+          ))}
+        </ul>,
+      );
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(currentLine)) {
+      const ordered: string[] = [];
+      while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
+        ordered.push(lines[i].trim().replace(/^\d+\.\s+/, "").trim());
+        i += 1;
+      }
+
+      nodes.push(
+        <ol key={`ordered-${i}`} className="list-decimal space-y-1 pl-6 text-slate-700">
+          {ordered.map((step, index) => (
+            <li key={`step-${i}-${index}`}>
+              {renderInlineFormattedText(step, `step-${i}-${index}`)}
+            </li>
+          ))}
+        </ol>,
+      );
+      continue;
+    }
+
+    nodes.push(
+      <p key={`paragraph-${i}`} className="whitespace-pre-wrap leading-7 text-slate-700">
+        {renderInlineFormattedText(currentLine, `paragraph-${i}`)}
+      </p>,
+    );
+    i += 1;
+  }
 
   return (
     <div className="space-y-3">
-      {paragraphs.map((paragraph, index) => (
-        <p key={`${paragraph}-${index}`} className="whitespace-pre-wrap leading-7 text-slate-700">
-          {renderInlineLinks(paragraph)}
-        </p>
-      ))}
+      {nodes}
     </div>
   );
 };
@@ -281,6 +370,7 @@ export default function PublicLandingPage() {
   const [validationError, setValidationError] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
   const [showLogin, setShowLogin] = useState(false);
   const [email, setEmail] = useState("");
@@ -569,6 +659,31 @@ export default function PublicLandingPage() {
     setActiveSessionId(session.id);
   };
 
+  const clearAllHistory = () => {
+    if (isSending) {
+      stopGeneration("Generation stopped. Chat history was cleared.");
+    }
+    const freshSession = createEmptySession();
+    setSessions([freshSession]);
+    setActiveSessionId(freshSession.id);
+    setPrompt("");
+    setValidationError("");
+    setSelectedCategory("");
+    setCopiedMessageId(null);
+  };
+
+  const copyResponse = async (messageId: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessageId(messageId);
+      setTimeout(() => {
+        setCopiedMessageId((current) => (current === messageId ? null : current));
+      }, 1500);
+    } catch {
+      setCopiedMessageId(null);
+    }
+  };
+
   const runLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -646,53 +761,7 @@ export default function PublicLandingPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-24 px-6 pb-16 lg:px-10">
-        <section className="relative z-10 grid gap-10 rounded-[2rem] border border-white/80 bg-white/70 p-8 shadow-[0_30px_80px_-32px_rgba(15,23,42,0.35)] backdrop-blur lg:grid-cols-[1.08fr,0.92fr] lg:p-12">
-          <div className="space-y-7">
-            <p className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">
-              <Sparkles className="h-3.5 w-3.5" />
-              Enterprise Knowledge AI
-            </p>
-            <h1 className="text-4xl font-semibold leading-tight text-slate-900 md:text-6xl">
-              Ask Anything About Our Company
-            </h1>
-            <p className="max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-              Get immediate answers grounded in internal policies, playbooks, handbooks, and support resources.
-              The assistant scans trusted company documents and returns traceable citations in seconds.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={startChat}
-                className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-600/30 transition hover:bg-cyan-700"
-              >
-                Start Chat
-                <ArrowRight className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setShowLogin(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-              >
-                <Lock className="h-4 w-4" />
-                Login as Admin
-              </button>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Live Assistant Preview</p>
-            <div className="mt-5 space-y-4">
-              <div className="rounded-2xl bg-slate-100 p-4 text-sm text-slate-700">
-                What is our reimbursement policy for remote-work equipment?
-              </div>
-              <div className="rounded-2xl border border-cyan-100 bg-cyan-50 p-4 text-sm text-slate-700">
-                The policy allows eligible employees to claim approved equipment up to the annual budget limit.
-                Requests are submitted through the IT service desk and approved by department managers.
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-500">
-                Sources: Employee Handbook.pdf, IT Policy Guide.pdf
-              </div>
-            </div>
-          </div>
-        </section>
+      
 
         <section className="space-y-6">
           <div className="flex items-end justify-between gap-3">
@@ -733,13 +802,24 @@ export default function PublicLandingPage() {
             <aside className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Chats</p>
-                <button
-                  type="button"
-                  onClick={createNewChat}
-                  className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800"
-                >
-                  New Chat
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={clearAllHistory}
+                    className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+                    title="Delete all prompt and response history"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={createNewChat}
+                    className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    New Chat
+                  </button>
+                </div>
               </div>
 
               <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto pr-1">
@@ -811,9 +891,30 @@ export default function PublicLandingPage() {
                               {isUser ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
                               {isUser ? "You" : "Assistant"}
                             </span>
-                            <span className={isUser ? "text-white/80" : "text-slate-400"}>
-                              {formatTime(message.timestamp)}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              {!isUser && message.content.trim() ? (
+                                <button
+                                  type="button"
+                                  onClick={() => copyResponse(message.id, message.content)}
+                                  className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 transition hover:border-cyan-300 hover:text-cyan-700"
+                                >
+                                  {copiedMessageId === message.id ? (
+                                    <>
+                                      <Check className="h-3.5 w-3.5" />
+                                      Copied
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="h-3.5 w-3.5" />
+                                      Copy
+                                    </>
+                                  )}
+                                </button>
+                              ) : null}
+                              <span className={isUser ? "text-white/80" : "text-slate-400"}>
+                                {formatTime(message.timestamp)}
+                              </span>
+                            </div>
                           </div>
 
                           {!isUser && message.status === "loading" && !message.content ? (

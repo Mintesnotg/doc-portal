@@ -1,21 +1,20 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, ReactNode, useState } from "react";
 import {
+  BookOpenText,
   Building2,
-  CircleHelp,
   Clock3,
-  FolderOpen,
+  FileCheck2,
+  FolderKanban,
   Landmark,
   Loader2,
   ShieldCheck,
-  Sparkles,
   Users,
-  Wrench,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-type InfoCard = {
+type Highlight = {
   title: string;
   description: string;
   icon: ReactNode;
@@ -29,41 +28,36 @@ type LoginErrors = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const infoCards: InfoCard[] = [
+const highlights: Highlight[] = [
   {
-    title: "About Our Company",
-    description: "Discover mission, values, and company history from trusted documents.",
-    icon: <Building2 className="h-5 w-5" />,
+    title: "Centralized Knowledge",
+    description: "Access approved organizational documents from one secure portal.",
+    icon: <BookOpenText className="h-5 w-5" />,
   },
   {
-    title: "Services",
-    description: "Explore service catalogs, delivery standards, and customer commitments.",
-    icon: <Wrench className="h-5 w-5" />,
+    title: "Structured Documentation",
+    description: "Browse clear policies, procedures, and standards by topic and owner.",
+    icon: <FolderKanban className="h-5 w-5" />,
   },
   {
-    title: "Policies",
-    description: "Find policy updates, governance standards, and compliance requirements.",
-    icon: <ShieldCheck className="h-5 w-5" />,
+    title: "Operational Clarity",
+    description: "Keep teams aligned with versioned records and consistent references.",
+    icon: <FileCheck2 className="h-5 w-5" />,
   },
   {
-    title: "Departments",
-    description: "Understand team structures, ownership boundaries, and department contacts.",
+    title: "Department Coverage",
+    description: "Find information for HR, Finance, Operations, IT, and Compliance.",
     icon: <Users className="h-5 w-5" />,
   },
   {
-    title: "Support Resources",
-    description: "Get onboarding guides, troubleshooting references, and operational playbooks.",
-    icon: <FolderOpen className="h-5 w-5" />,
+    title: "Governance Ready",
+    description: "Support audit and governance requirements with documented controls.",
+    icon: <ShieldCheck className="h-5 w-5" />,
   },
   {
-    title: "Latest Updates",
-    description: "Track recently published memos, release notes, and organizational changes.",
-    icon: <Sparkles className="h-5 w-5" />,
-  },
-  {
-    title: "Frequently Asked Questions",
-    description: "Access curated answers for recurring company, HR, and IT questions.",
-    icon: <CircleHelp className="h-5 w-5" />,
+    title: "Company Context",
+    description: "Understand business units, responsibilities, and service boundaries.",
+    icon: <Building2 className="h-5 w-5" />,
   },
 ];
 
@@ -125,7 +119,7 @@ export default function PublicLandingPage() {
   };
 
   return (
-    <div className="relative overflow-x-hidden bg-[radial-gradient(circle_at_top_left,#f0f7ff_0,#f8fafc_40%,#f7f5f2_100%)] text-slate-900">
+    <div className="relative overflow-x-hidden bg-[radial-gradient(circle_at_top_left,#eff6ff_0,#f8fafc_35%,#f4f7f5_100%)] text-slate-900">
       <div className="pointer-events-none absolute left-0 top-0 -z-0 h-[32rem] w-[32rem] rounded-full bg-cyan-300/20 blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-24 -z-0 h-[36rem] w-[36rem] rounded-full bg-emerald-300/20 blur-3xl" />
 
@@ -135,71 +129,102 @@ export default function PublicLandingPage() {
           SMART DOC PORTAL
         </div>
 
-        <button
-          onClick={() => setShowLogin(true)}
-          className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800"
-        >
-          Admin Login
-        </button>
+        <div className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+          <a href="#overview" className="hover:text-slate-900">
+            Overview
+          </a>
+          <a href="#resources" className="hover:text-slate-900">
+            Resources
+          </a>
+          <a href="#updates" className="hover:text-slate-900">
+            Updates
+          </a>
+          <button
+            onClick={() => setShowLogin(true)}
+            className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800"
+          >
+            Login
+          </button>
+        </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-20 px-6 pb-16 lg:px-10">
-        <section className="relative z-10 grid gap-10 rounded-[2rem] border border-white/80 bg-white/70 p-8 shadow-[0_30px_80px_-32px_rgba(15,23,42,0.35)] backdrop-blur lg:grid-cols-[1.08fr,0.92fr] lg:p-12">
-          <div className="space-y-7">
-            <p className="inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700">
-              <Sparkles className="h-3.5 w-3.5" />
-              Enterprise Knowledge Hub
-            </p>
-            <h1 className="text-4xl font-semibold leading-tight text-slate-900 md:text-6xl">
-              Company Knowledge Portal
-            </h1>
-            <p className="max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-              Explore trusted company information, policies, and operational resources from one centralized platform.
-            </p>
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-6 pb-16 lg:px-10">
+        <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-8 shadow-[0_28px_70px_-35px_rgba(2,8,23,0.35)] backdrop-blur md:p-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">Knowledge Portal</p>
+          <h1 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight text-slate-900 md:text-5xl">
+            Trusted documentation for daily operations and strategic decisions
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+            Smart Doc Portal is a centralized landing page for organizational knowledge. Teams can locate approved
+            resources, follow current standards, and stay aligned across departments.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a
+              href="#resources"
+              className="rounded-full bg-cyan-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-800"
+            >
+              View Resources
+            </a>
             <button
               onClick={() => setShowLogin(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-600/30 transition hover:bg-cyan-700"
+              className="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
             >
-              Login as Admin
+              Sign In
             </button>
-          </div>
-
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Platform Overview</p>
-            <div className="mt-5 space-y-4 text-sm text-slate-700">
-              <div className="rounded-2xl bg-slate-100 p-4">
-                Manage internal documents across departments with role-based access.
-              </div>
-              <div className="rounded-2xl border border-cyan-100 bg-cyan-50 p-4">
-                Keep policies and references organized for HR, IT, and operational teams.
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-500">
-                Secure access, categorized content, and audit-friendly document workflows.
-              </div>
-            </div>
           </div>
         </section>
 
-        <section className="space-y-6">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Company Knowledge Areas</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-900 md:text-3xl">Find the right context faster</h2>
+        <section id="overview" className="grid gap-4 rounded-3xl border border-slate-200 bg-white/85 p-6 md:grid-cols-3">
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Scope</p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Company policies, SOPs, governance guidance, and internal manuals in one place.
+            </p>
           </div>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Audience</p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Built for admins and team members who need reliable operational information.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Availability</p>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
+              Updated regularly to reflect active processes, ownership changes, and compliance requirements.
+            </p>
+          </div>
+        </section>
 
+        <section id="resources" className="space-y-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Resource Highlights</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900 md:text-3xl">Browse core knowledge areas</h2>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {infoCards.map((card) => (
-              <div
+            {highlights.map((card) => (
+              <article
                 key={card.title}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:border-cyan-300 hover:shadow-xl"
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-cyan-300 hover:shadow-xl"
               >
-                <div className="inline-flex rounded-xl bg-slate-100 p-2 text-cyan-700 transition group-hover:bg-cyan-100">
-                  {card.icon}
-                </div>
+                <div className="inline-flex rounded-xl bg-slate-100 p-2 text-cyan-700">{card.icon}</div>
                 <h3 className="mt-4 text-lg font-semibold text-slate-900">{card.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{card.description}</p>
-              </div>
+              </article>
             ))}
           </div>
+        </section>
+
+        <section id="updates" className="rounded-3xl border border-slate-200 bg-white/90 p-6 md:p-8">
+          <div className="flex items-center gap-2 text-cyan-700">
+            <Clock3 className="h-4 w-4" />
+            <p className="text-xs font-semibold uppercase tracking-[0.2em]">Recent Notes</p>
+          </div>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-900">What to expect on this portal</h2>
+          <ul className="mt-4 list-disc space-y-2 pl-6 text-sm leading-6 text-slate-600">
+            <li>Consistent document categories and naming conventions for fast retrieval.</li>
+            <li>Reviewed and approved content maintained by designated owners.</li>
+            <li>Simple access flow for both administrative and standard user accounts.</li>
+          </ul>
         </section>
       </main>
 
@@ -208,16 +233,28 @@ export default function PublicLandingPage() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-600">Smart Doc Portal</p>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Enterprise platform for trusted company knowledge and document workflows.
+              A single source of truth for internal knowledge, policy clarity, and operational documentation.
             </p>
           </div>
 
           <div>
             <p className="text-sm font-semibold text-slate-800">Quick Links</p>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
-              <li><a href="#" className="hover:text-slate-900">Company Resources</a></li>
-              <li><a href="#" className="hover:text-slate-900">Documentation</a></li>
-              <li><a href="#" className="hover:text-slate-900">Support</a></li>
+              <li>
+                <a href="#overview" className="hover:text-slate-900">
+                  Overview
+                </a>
+              </li>
+              <li>
+                <a href="#resources" className="hover:text-slate-900">
+                  Resource Areas
+                </a>
+              </li>
+              <li>
+                <a href="#updates" className="hover:text-slate-900">
+                  Recent Notes
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -233,9 +270,21 @@ export default function PublicLandingPage() {
           <div>
             <p className="text-sm font-semibold text-slate-800">Legal</p>
             <ul className="mt-3 space-y-2 text-sm text-slate-600">
-              <li><a href="#" className="hover:text-slate-900">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-slate-900">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-slate-900">Social Links</a></li>
+              <li>
+                <a href="#" className="hover:text-slate-900">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-slate-900">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-slate-900">
+                  Compliance
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -250,8 +299,8 @@ export default function PublicLandingPage() {
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Admin Login</p>
-                <h3 className="mt-1 text-xl font-semibold text-slate-900">Sign in to continue</h3>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Portal Access</p>
+                <h3 className="mt-1 text-xl font-semibold text-slate-900">Sign in to access documents</h3>
               </div>
               <button
                 type="button"
@@ -270,9 +319,11 @@ export default function PublicLandingPage() {
               ) : null}
 
               <div className="space-y-1.5">
-                <label htmlFor="admin-email" className="text-sm font-medium text-slate-700">Email</label>
+                <label htmlFor="login-email" className="text-sm font-medium text-slate-700">
+                  Email
+                </label>
                 <input
-                  id="admin-email"
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -285,9 +336,11 @@ export default function PublicLandingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="admin-password" className="text-sm font-medium text-slate-700">Password</label>
+                <label htmlFor="login-password" className="text-sm font-medium text-slate-700">
+                  Password
+                </label>
                 <input
-                  id="admin-password"
+                  id="login-password"
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}

@@ -1,16 +1,13 @@
-import { NextResponse, type NextRequest } from "next/server";
+﻿import { NextResponse, type NextRequest } from "next/server";
 import { decodeJwt } from "@/lib/jwt";
 import { SESSION_COOKIE_NAME } from "@/lib/session-cookie";
 
-// Protect all "(app)" routes (dashboard, users, roles, etc.) by requiring
-// a non-expired JWT in the session cookie. Public routes like "/" and
-// API login/session endpoints remain accessible without auth.
+// Protect all "(app)" routes by requiring a non-expired JWT in the session cookie.
+// Public routes like "/" and login/session APIs remain accessible without auth.
 export function middleware(request: NextRequest) {
-  debugger;
   const { nextUrl, cookies } = request;
   const { pathname } = nextUrl;
 
-  // Allow public entrypoints and auth/session APIs through without checks.
   if (
     pathname === "/" ||
     pathname.startsWith("/_next") ||
@@ -22,10 +19,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Only guard the application shell under "(app)" – adjust this if you
-  // add more protected segments.
   const isProtectedAppRoute =
     pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/chatbot") ||
     pathname.startsWith("/users") ||
     pathname.startsWith("/roles") ||
     pathname.startsWith("/permissions") ||
@@ -42,8 +38,6 @@ export function middleware(request: NextRequest) {
     cookies.get("access_token")?.value;
 
   if (!token) {
-
-    console.log(` does the token exist : -  ${token}` )
     const url = new URL("/", request.url);
     return NextResponse.redirect(url);
   }
@@ -53,7 +47,6 @@ export function middleware(request: NextRequest) {
   const isExpired = decoded?.exp !== undefined && decoded.exp < nowInSeconds;
 
   if (!decoded || isExpired) {
-
     const url = new URL("/", request.url);
     return NextResponse.redirect(url);
   }
@@ -62,12 +55,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Run this middleware on all routes except static assets and Next internals.
-     * More precise scoping is done in the function above.
-     */
-    "/((?!_next/static|_next/image|favicon.ico|assets/).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|assets/).*)"],
 };
-

@@ -20,7 +20,6 @@ async function getInitialPermissions(token: string | undefined, roleIds: string[
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
-        "X-Permission": "view_permissions",
       },
       cache: "no-store",
       credentials: "include",

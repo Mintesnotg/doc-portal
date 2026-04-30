@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import type { RAGQueryRequest, RAGQueryResponse } from "@/lib/rag";
+import { SESSION_COOKIE_NAME } from "@/lib/session-cookie";
 
 type BackendRagResponse = {
   answer?: string;
@@ -22,6 +23,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const token =
+    request.cookies.get(SESSION_COOKIE_NAME)?.value ||
+    request.cookies.get("__Host-token")?.value ||
+    request.cookies.get("token")?.value ||
+    request.cookies.get("access_token")?.value ||
+    "";
+
+  if (!token) {
+    return NextResponse.json(
+      { error: "Authentication required." },
+      { status: 401 },
+    );
+  }
+
   const body = (await request.json().catch(() => ({}))) as RAGQueryRequest;
   const question = typeof body.question === "string" ? body.question.trim() : "";
   const category = typeof body.category === "string" ? body.category.trim() : "";
@@ -39,6 +54,9 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        Permission: "query_rag",
+        "X-Permission": "query_rag",
       },
       cache: "no-store",
       body: JSON.stringify({

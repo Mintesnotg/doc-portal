@@ -1,4 +1,5 @@
-﻿import { NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { SESSION_COOKIE_NAME } from "@/lib/session-cookie";
 
 const getBaseApiUrl = () =>
   process.env.API_BASE_URL?.replace(/\/+$/, "") ||
@@ -6,7 +7,7 @@ const getBaseApiUrl = () =>
   "";
 
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   context: { params: Promise<{ documentId: string }> },
 ) {
   const params = await context.params;
@@ -14,6 +15,20 @@ export async function GET(
 
   if (!documentId) {
     return NextResponse.json({ error: "Document id is required." }, { status: 400 });
+  }
+
+  const token =
+    request.cookies.get(SESSION_COOKIE_NAME)?.value ||
+    request.cookies.get("__Host-token")?.value ||
+    request.cookies.get("token")?.value ||
+    request.cookies.get("access_token")?.value ||
+    "";
+
+  if (!token) {
+    return NextResponse.json(
+      { error: "Authentication required." },
+      { status: 401 },
+    );
   }
 
   const baseUrl = getBaseApiUrl();
@@ -25,8 +40,13 @@ export async function GET(
   }
 
   try {
-    const res = await fetch(`${baseUrl}/api/documents/${documentId}/download`, {
+    const res = await fetch(`${baseUrl}/api/rag/source/${documentId}`, {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Permission: "download_reference_docs",
+        "X-Permission": "download_reference_docs",
+      },
       cache: "no-store",
     });
 

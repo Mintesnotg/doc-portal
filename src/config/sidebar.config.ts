@@ -8,10 +8,9 @@ import {
   FolderOpen,
   FileText,
   UserCog,
-  ListChecks,
-  ClockIcon,
   FolderClosedIcon,
   ShieldCheck,
+  MessageSquare,
 } from "lucide-react";
 export type SidebarItem = {
   name: string;
@@ -22,6 +21,13 @@ export type SidebarItem = {
 };
 
 export const sidebarConfig: SidebarItem[] = [
+  
+  {
+    name: "Knowledge Assistant",
+    route: "/chatbot",
+    icon: MessageSquare,
+    permission: "view_chatbot",
+  },
   {
     name: "Account Management",
     icon: Shield,
@@ -47,6 +53,7 @@ export const sidebarConfig: SidebarItem[] = [
       },
     ],
   },
+
   {
     name: "Doc Management",
     icon: FolderTree,

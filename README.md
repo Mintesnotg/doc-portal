@@ -140,3 +140,9 @@ doc-portal/
 - Redis-backed distributed rate limiter for multi-instance deployments.
 - Analytics dashboard for question trends and unanswered intents.
 - Semantic conversation memory across sessions.
+
+## Open Source Collaboration
+
+- Contribution guide: `CONTRIBUTING.md`
+- Frontend platform extensibility blueprint: `PLATFORM.md`
+- Maintainer-ready issue backlog: `.github/ISSUE_BACKLOG.md`

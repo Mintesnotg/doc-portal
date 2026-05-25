@@ -70,6 +70,74 @@ flowchart TD
 
 ## Setup Guide
 
+### Docker Quick Start (Recommended)
+
+For most contributors, Docker is the easiest way to run everything locally.
+This starts:
+
+- Frontend (`doc-portal`)
+- Backend (`go-api`)
+- PostgreSQL
+- MinIO
+
+### Prerequisites
+
+- Docker Desktop installed and running
+- Git installed
+
+### 1. Clone and open the repo
+
+```bash
+git clone <your-repo-url>
+cd Smart_doc_
+```
+
+### 2. Start the full stack
+
+```bash
+docker compose up --build -d
+```
+
+### 3. Open in browser
+
+- Portal: `http://localhost:3000`
+- API: `http://localhost:8080`
+- Swagger: `http://localhost:8080/swagger/index.html`
+- MinIO Console: `http://localhost:9001`
+
+Default MinIO credentials:
+
+- Username: `minioadmin`
+- Password: `minioadmin`
+
+### 4. Follow logs (optional)
+
+```bash
+docker compose logs -f frontend backend
+```
+
+### 5. Stop services
+
+```bash
+docker compose down
+```
+
+### 6. Reset local data (optional)
+
+```bash
+docker compose down -v
+```
+
+### Optional: Enable Gemini answers
+
+Add your `GEMINI_API_KEY` in `docker-compose.yml` (`backend` service), then rebuild:
+
+```bash
+docker compose up -d --build backend
+```
+
+### Manual Local Run
+
 ### Prerequisites
 
 - Node.js 20+
